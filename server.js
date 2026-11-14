@@ -9,6 +9,4 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log('Server running');
-});
+app.listen(PORT, () => console.log('Daraz 3D Pro Running'));
