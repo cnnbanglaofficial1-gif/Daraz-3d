@@ -3,76 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daraz 3D Bangladesh</title>
+  <title>Jinneee - 3D Online Shopping</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cloudflare.com"></script>
 </head>
 <body>
 
   <header class="navbar">
     <div class="nav-top">
-      <div class="logo">DARAZ <span>3D</span></div>
+      <div class="brand">🧞‍♂️ Jinneee <span class="brand-badge">3D</span></div>
       <div class="search-box">
-        <input id="searchInput" onkeyup="searchItems()" type="text" placeholder="Daraz-এ পণ্য খুঁজুন..." />
+        <input id="searchInput" onkeyup="searchItems()" type="text" placeholder="Jinneee-তে পণ্য খুঁজুন..." />
       </div>
       <button class="cart-btn" onclick="openCart()">🛒 <span id="cartCount">0</span></button>
     </div>
   </header>
 
-  <section class="hero">
-    <div class="hero-text">
-      <span class="badge">✨ Next-Gen 3D Shopping</span>
-      <h1>বাংলাদেশের সেরা 3D ই-কমার্স অভিজ্ঞতা</h1>
-      <p>ডানের 3D হোলোগ্রাম রিংটি আঙুল দিয়ে ঘুরিয়ে দেখুন এবং ফ্ল্যাশ সেলে অর্ডার করুন।</p>
-    </div>
-    <div id="canvas-3d"></div>
-  </section>
+  <!-- Main Home View -->
+  <div id="homeView">
+    <section class="hero">
+      <span style="background:rgba(0,168,255,0.2);border:1px solid #00a8ff;color:#38bdf8;padding:3px 10px;border-radius:15px;font-size:11px;">✨ Jinneee 3D Experience</span>
+      <h1>ইচ্ছেপূরণের জাদুকরী 3D শপিং!</h1>
+      <p>নিচের 3D হোলোগ্রামটি আঙুল দিয়ে ঘুরিয়ে দেখুন এবং পছন্দের পণ্যে ক্লিক করে অর্ডার করুন।</p>
+      <canvas id="canvas-3d"></canvas>
+    </section>
 
-  <section class="section">
-    <div class="sec-title"><span>বিভাগসমূহ (Categories)</span></div>
-    <div class="cat-grid">
-      <div class="cat-item active" onclick="filterCat('All', this)">🔥 সব পণ্য</div>
-      <div class="cat-item" onclick="filterCat('Watch', this)">⌚ স্মার্ট ওয়াচ</div>
-      <div class="cat-item" onclick="filterCat('Fashion', this)">👕 ফ্যাশন</div>
-      <div class="cat-item" onclick="filterCat('Gadgets', this)">🎧 গ্যাজেট</div>
-    </div>
-  </section>
+    <section class="section">
+      <div class="sec-title"><span>বিভাগসমূহ (Categories)</span></div>
+      <div class="cat-grid">
+        <div class="cat-item active" onclick="filterCat('All', this)">🔥 সব পণ্য</div>
+        <div class="cat-item" onclick="filterCat('Watch', this)">⌚ স্মার্ট ওয়াচ</div>
+        <div class="cat-item" onclick="filterCat('Fashion', this)">👕 ফ্যাশন</div>
+        <div class="cat-item" onclick="filterCat('Gadgets', this)">🎧 গ্যাজেট</div>
+      </div>
+    </section>
 
-  <section class="section">
-    <div class="sec-title">
-      <span>⚡ ফ্ল্যাশ সেল (Flash Sale)</span>
-      <span class="timer" id="countdown">02 : 45 : 30</span>
+    <section class="section">
+      <div class="sec-title">
+        <span>⚡ ফ্ল্যাশ সেল (Flash Sale)</span>
+        <span class="timer" id="countdown">02 : 45 : 30</span>
+      </div>
+      <div class="prod-grid" id="prodGrid"></div>
+    </section>
+  </div>
+
+  <!-- Profile & Order Status View -->
+  <div id="profileView" class="section" style="display:none;">
+    <h2 style="margin-bottom:12px;color:#ff6b00;">👤 আমার প্রোফাইল ও অর্ডার স্ট্যাটাস</h2>
+    <div style="background:#12121c;padding:15px;border-radius:16px;border:1px solid #2a2a3d;margin-bottom:18px;">
+      <label style="font-size:12px;color:#aaa;">আপনার নাম</label>
+      <input id="profName" class="input-field" placeholder="আপনার পুরো নাম লিখুন" />
+      <label style="font-size:12px;color:#aaa;">মোবাইল নম্বর</label>
+      <input id="profPhone" class="input-field" placeholder="017XXXXXXXX" />
+      <label style="font-size:12px;color:#aaa;">ডেলিভারি ঠিকানা</label>
+      <input id="profAddr" class="input-field" placeholder="বাসা নং, রোড, জেলা" />
+      <button class="btn-main" onclick="saveProfile()">প্রোফাইল সেভ করুন</button>
     </div>
-    <div class="prod-grid" id="prodGrid"></div>
-  </section>
+
+    <h3 style="margin-bottom:10px;font-size:15px;">📦 আপনার অর্ডারসমূহ (Live Status)</h3>
+    <div id="orderHistoryList" style="font-size:13px;color:#ccc;">কোনো অর্ডার পাওয়া যায়নি।</div>
+  </div>
+
+  <!-- Product Details Modal -->
+  <div class="modal" id="detailModal">
+    <div class="modal-box" id="detailContent"></div>
+  </div>
 
   <!-- Cart & Checkout Modal -->
   <div class="modal" id="cartModal">
     <div class="modal-box">
       <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-        <h3>আপনার শপিং কার্ট</h3>
-        <span onclick="closeCart()" style="cursor:pointer;font-size:20px;">&times;</span>
+        <h3>🛒 শপিং কার্ট ও চেকআউট</h3>
+        <span onclick="closeModals()" style="cursor:pointer;font-size:22px;">&times;</span>
       </div>
-      <div id="cartList" style="max-height:180px;overflow-y:auto;font-size:13px;"></div>
-      <div style="margin-top:12px;font-weight:bold;display:flex;justify-content:space-between;">
-        <span>সর্বমোট বিল:</span>
-        <span style="color:#f85606;">৳ <span id="totalBill">0</span></span>
+      <div id="cartList" style="max-height:150px;overflow-y:auto;font-size:13px;"></div>
+      <div style="margin:12px 0;font-weight:bold;display:flex;justify-content:space-between;">
+        <span>সর্বমোট বিল (ডেলিভারিসহ):</span>
+        <span style="color:#ff6b00;">৳ <span id="totalBill">0</span></span>
       </div>
-      <p style="font-size:11px;color:#aaa;margin-top:10px;">পেমেন্ট মেথড সিলেক্ট করুন:</p>
-      <div class="pay-methods">
-        <button class="pay-btn selected" onclick="selectPay(this)">bKash</button>
-        <button class="pay-btn" onclick="selectPay(this)">Nagad</button>
-        <button class="pay-btn" onclick="selectPay(this)">Cash On Delivery</button>
+      <input id="orderAddress" class="input-field" placeholder="ডেলিভারি ঠিকানা ও ফোন নম্বর দিন..." />
+      <div class="pay-row">
+        <button class="pay-opt active" onclick="setPay(this, 'bKash')">bKash</button>
+        <button class="pay-opt" onclick="setPay(this, 'Nagad')">Nagad</button>
+        <button class="pay-opt" onclick="setPay(this, 'Cash On Delivery')">COD</button>
       </div>
-      <button class="btn-add" onclick="placeOrder()">অর্ডার কনফার্ম করুন</button>
+      <button class="btn-main" onclick="confirmOrder()">অর্ডার কনফার্ম করুন</button>
     </div>
   </div>
 
   <nav class="bottom-nav">
-    <div onclick="window.scrollTo(0,0)">🏠<br>হোম</div>
-    <div onclick="alert('Daraz Mall: ১০০% অরিজিনাল ব্র্যান্ড পণ্য!')">🛍️<br>মল</div>
+    <div id="navHome" class="active" onclick="switchTab('home')">🏠<br>হোম</div>
     <div onclick="openCart()">🛒<br>কার্ট</div>
-    <div onclick="alert('অ্যাকাউন্ট: ইউজার প্রোফাইল ও অর্ডার ট্র্যাকিং')">👤<br>অ্যাকাউন্ট</div>
+    <div id="navProf" onclick="switchTab('profile')">📦<br>অর্ডার ও প্রোফাইল</div>
   </nav>
 
   <script src="app.js"></script>
