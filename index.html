@@ -3,97 +3,123 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jinneee - 3D Online Shopping</title>
+  <title>Jinneee - Online Shopping in Bangladesh</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <header class="navbar">
-    <div class="nav-top">
-      <div class="brand">🧞‍♂️ Jinneee <span class="brand-badge">3D</span></div>
-      <div class="search-box">
-        <input id="searchInput" onkeyup="searchItems()" type="text" placeholder="Jinneee-তে পণ্য খুঁজুন..." />
+  <!-- Top Search Header -->
+  <header class="header">
+    <div class="search-wrap">
+      <div class="brand-logo">🧞‍♂️ Jinneee</div>
+      <div class="search-bar">
+        <input id="searchInput" onkeyup="searchProd()" type="text" placeholder="Jinneee-তে পণ্য খুঁজুন..." />
+        <button class="search-btn" onclick="searchProd()">Search</button>
       </div>
-      <button class="cart-btn" onclick="openCart()">🛒 <span id="cartCount">0</span></button>
     </div>
   </header>
 
-  <!-- Main Home View -->
-  <div id="homeView">
-    <section class="hero">
-      <span style="background:rgba(0,168,255,0.2);border:1px solid #00a8ff;color:#38bdf8;padding:3px 10px;border-radius:15px;font-size:11px;">✨ Jinneee 3D Experience</span>
-      <h1>ইচ্ছেপূরণের জাদুকরী 3D শপিং!</h1>
-      <p>নিচের 3D হোলোগ্রামটি আঙুল দিয়ে ঘুরিয়ে দেখুন এবং পছন্দের পণ্যে ক্লিক করে অর্ডার করুন।</p>
-      <canvas id="canvas-3d"></canvas>
-    </section>
-
-    <section class="section">
-      <div class="sec-title"><span>বিভাগসমূহ (Categories)</span></div>
-      <div class="cat-grid">
-        <div class="cat-item active" onclick="filterCat('All', this)">🔥 সব পণ্য</div>
-        <div class="cat-item" onclick="filterCat('Watch', this)">⌚ স্মার্ট ওয়াচ</div>
-        <div class="cat-item" onclick="filterCat('Fashion', this)">👕 ফ্যাশন</div>
-        <div class="cat-item" onclick="filterCat('Gadgets', this)">🎧 গ্যাজেট</div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="sec-title">
-        <span>⚡ ফ্ল্যাশ সেল (Flash Sale)</span>
-        <span class="timer" id="countdown">02 : 45 : 30</span>
-      </div>
-      <div class="prod-grid" id="prodGrid"></div>
-    </section>
-  </div>
-
-  <!-- Profile & Order Status View -->
-  <div id="profileView" class="section" style="display:none;">
-    <h2 style="margin-bottom:12px;color:#ff6b00;">👤 আমার প্রোফাইল ও অর্ডার স্ট্যাটাস</h2>
-    <div style="background:#12121c;padding:15px;border-radius:16px;border:1px solid #2a2a3d;margin-bottom:18px;">
-      <label style="font-size:12px;color:#aaa;">আপনার নাম</label>
-      <input id="profName" class="input-field" placeholder="আপনার পুরো নাম লিখুন" />
-      <label style="font-size:12px;color:#aaa;">মোবাইল নম্বর</label>
-      <input id="profPhone" class="input-field" placeholder="017XXXXXXXX" />
-      <label style="font-size:12px;color:#aaa;">ডেলিভারি ঠিকানা</label>
-      <input id="profAddr" class="input-field" placeholder="বাসা নং, রোড, জেলা" />
-      <button class="btn-main" onclick="saveProfile()">প্রোফাইল সেভ করুন</button>
+  <!-- TAB 1: HOME -->
+  <div id="tabHome">
+    <div class="quick-bar">
+      <div class="q-item" onclick="filterHome('All')"><div class="q-icon">🔥</div>All</div>
+      <div class="q-item" onclick="filterHome('Watch')"><div class="q-icon">⌚</div>Watch</div>
+      <div class="q-item" onclick="filterHome('Fashion')"><div class="q-icon">🧥</div>Fashion</div>
+      <div class="q-item" onclick="filterHome('Gadgets')"><div class="q-icon">🎧</div>Gadgets</div>
+      <div class="q-item" onclick="switchTab('orders')"><div class="q-icon">🚚</div>Orders</div>
     </div>
 
-    <h3 style="margin-bottom:10px;font-size:15px;">📦 আপনার অর্ডারসমূহ (Live Status)</h3>
-    <div id="orderHistoryList" style="font-size:13px;color:#ccc;">কোনো অর্ডার পাওয়া যায়নি।</div>
+    <div class="section-head">
+      <span class="flash-tag">⚡ Flash Sale</span>
+      <span class="timer" id="timer">02 : 45 : 30</span>
+    </div>
+    <div class="prod-grid" id="homeGrid"></div>
   </div>
 
-  <!-- Product Details Modal -->
-  <div class="modal" id="detailModal">
-    <div class="modal-box" id="detailContent"></div>
-  </div>
-
-  <!-- Cart & Checkout Modal -->
-  <div class="modal" id="cartModal">
-    <div class="modal-box">
-      <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-        <h3>🛒 শপিং কার্ট ও চেকআউট</h3>
-        <span onclick="closeModals()" style="cursor:pointer;font-size:22px;">&times;</span>
-      </div>
-      <div id="cartList" style="max-height:150px;overflow-y:auto;font-size:13px;"></div>
-      <div style="margin:12px 0;font-weight:bold;display:flex;justify-content:space-between;">
-        <span>সর্বমোট বিল (ডেলিভারিসহ):</span>
-        <span style="color:#ff6b00;">৳ <span id="totalBill">0</span></span>
-      </div>
-      <input id="orderAddress" class="input-field" placeholder="ডেলিভারি ঠিকানা ও ফোন নম্বর দিন..." />
-      <div class="pay-row">
-        <button class="pay-opt active" onclick="setPay(this, 'bKash')">bKash</button>
-        <button class="pay-opt" onclick="setPay(this, 'Nagad')">Nagad</button>
-        <button class="pay-opt" onclick="setPay(this, 'Cash On Delivery')">COD</button>
-      </div>
-      <button class="btn-main" onclick="confirmOrder()">অর্ডার কনফার্ম করুন</button>
+  <!-- TAB 2: CATEGORIES (Exact Daraz Split Layout) -->
+  <div id="tabCat" style="display:none;">
+    <div class="cat-split">
+      <div class="cat-left" id="catMenu"></div>
+      <div class="cat-right" id="catSubGrid"></div>
     </div>
   </div>
 
-  <nav class="bottom-nav">
-    <div id="navHome" class="active" onclick="switchTab('home')">🏠<br>হোম</div>
-    <div onclick="openCart()">🛒<br>কার্ট</div>
-    <div id="navProf" onclick="switchTab('profile')">📦<br>অর্ডার ও প্রোফাইল</div>
+  <!-- TAB 3: MY CART -->
+  <div id="tabCart" style="display:none;">
+    <div class="section-head"><span style="font-weight:bold;">🛒 My Cart (<span id="cartTopCnt">0</span>)</span></div>
+    <div id="cartItemsBox"></div>
+    <div class="box-card" id="checkoutBox" style="display:none;">
+      <div style="font-weight:bold;margin-bottom:8px;">ডেলিভারি তথ্য ও পেমেন্ট</div>
+      <input id="chkName" class="input-box" placeholder="আপনার নাম" />
+      <input id="chkPhone" class="input-box" placeholder="মোবাইল নম্বর (017XXXXXXXX)" />
+      <input id="chkAddr" class="input-box" placeholder="সম্পূর্ণ ঠিকানা (বাসা, রোড, জেলা)" />
+      <select id="chkPay" class="input-box">
+        <option value="Cash On Delivery">Cash On Delivery (COD)</option>
+        <option value="bKash">bKash Payment</option>
+        <option value="Nagad">Nagad Payment</option>
+      </select>
+      <div style="display:flex;justify-content:space-between;font-weight:bold;margin:10px 0;">
+        <span>Total (Shipping ৳60 সহ):</span>
+        <span style="color:#ff5e00;">৳ <span id="cartTotal">0</span></span>
+      </div>
+      <button class="btn-cart" style="width:100%;border-radius:8px;" onclick="placeOrder()">Check Out & Confirm Order</button>
+    </div>
+  </div>
+
+  <!-- TAB 4: ACCOUNT & MY ORDERS -->
+  <div id="tabAccount" style="display:none;">
+    <div class="acc-header">Hello, <span id="userTitle">Jinneee Shopper</span></div>
+    <div class="acc-row" onclick="openSubSection('ordersSec')"><span>📦 My Orders (To Pay / To Ship / Status)</span><span>›</span></div>
+    <div class="acc-row" onclick="openSubSection('infoSec')"><span>👤 Account Information (Profile & Address)</span><span>›</span></div>
+
+    <!-- My Orders Section -->
+    <div id="ordersSec">
+      <div class="order-tabs">
+        <div class="o-tab active" onclick="renderOrders('All', this)">All</div>
+        <div class="o-tab" onclick="renderOrders('To Ship', this)">To Ship</div>
+        <div class="o-tab" onclick="renderOrders('To Receive', this)">To Receive</div>
+        <div class="o-tab" onclick="renderOrders('Cancelled', this)">Cancelled</div>
+      </div>
+      <div id="ordersContainer"></div>
+    </div>
+
+    <!-- Account Information Section -->
+    <div id="infoSec" class="box-card" style="display:none;">
+      <h4 style="margin-bottom:10px;">Account Information</h4>
+      <label style="font-size:11px;color:#666;">Full Name</label>
+      <input id="accName" class="input-box" placeholder="Full Name" />
+      <label style="font-size:11px;color:#666;">Mobile Number</label>
+      <input id="accPhone" class="input-box" placeholder="Add Mobile" />
+      <label style="font-size:11px;color:#666;">Delivery Address</label>
+      <input id="accAddr" class="input-box" placeholder="Address Book" />
+      <button class="btn-cart" style="width:100%;border-radius:8px;" onclick="saveAccount()">Save Profile</button>
+    </div>
+  </div>
+
+  <!-- PRODUCT DETAILS PAGE (3D Interactive Product View) -->
+  <div class="detail-page" id="detailPage">
+    <div class="detail-top">
+      <button onclick="closeDetail()" style="border:none;background:none;font-size:20px;cursor:pointer;">←</button>
+      <span style="font-size:13px;font-weight:bold;">Product Details (3D View)</span>
+      <span onclick="closeDetail(); switchTab('cart');" style="cursor:pointer;">🛒</span>
+    </div>
+    <div class="stage-3d" id="stage3D">
+      <div class="obj-3d" id="obj3D">⌚</div>
+      <span style="font-size:11px;color:#666;margin-top:10px;">👆 পণ্যটি আঙুল দিয়ে ৩ডি অ্যাঙ্গেলে ঘুরিয়ে দেখুন</span>
+    </div>
+    <div id="detailBody"></div>
+    <div class="detail-bar">
+      <button class="btn-buy" id="btnBuyNow">Buy Now</button>
+      <button class="btn-cart" id="btnAddCart">Add to Cart</button>
+    </div>
+  </div>
+
+  <!-- Bottom 4-Tab Navigation -->
+  <nav class="b-nav">
+    <div class="b-tab active" id="nav-home" onclick="switchTab('home')">🏠<br>Home</div>
+    <div class="b-tab" id="nav-cat" onclick="switchTab('cat')">☰<br>Categories</div>
+    <div class="b-tab" id="nav-cart" onclick="switchTab('cart')">🛒<span class="badge-cnt" id="navBadge">0</span><br>Cart</div>
+    <div class="b-tab" id="nav-account" onclick="switchTab('account')">👤<br>Account</div>
   </nav>
 
   <script src="app.js"></script>
