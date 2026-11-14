@@ -1,108 +1,122 @@
 const products = [
-  { id: 1, name: "Haylou Solar Smart Watch", price: 3369, old: 4499, off: "-25%", color: "#ff6b35" },
-  { id: 2, name: "Premium Winter Hoodie", price: 410, old: 840, off: "-51%", color: "#3b82f6" },
-  { id: 3, name: "Lotto Running Shoes", price: 967, old: 1290, off: "-25%", color: "#10b981" },
-  { id: 4, name: "TWS Wireless Earbuds", price: 750, old: 1200, off: "-37%", color: "#a855f7" },
-  { id: 5, name: "RGB Gaming Keyboard", price: 1850, old: 2500, off: "-26%", color: "#ec4899" },
-  { id: 6, name: "3D Hologram Projector", price: 2490, old: 3500, off: "-29%", color: "#f59e0b" }
+  { id: 1, name: "Haylou Solar Neo 2 Smart Watch", cat: "Watch", price: 3369, old: 4499, off: "-25%", rate: "4.9 (120)", img: "https://unsplash.com" },
+  { id: 2, name: "Premium Cotton Winter Hoodie", cat: "Fashion", price: 410, old: 840, off: "-51%", rate: "4.7 (85)", img: "https://unsplash.com" },
+  { id: 3, name: "Lotto Super Light Running Shoes", cat: "Fashion", price: 967, old: 1290, off: "-25%", rate: "4.8 (210)", img: "https://unsplash.com" },
+  { id: 4, name: "TWS Wireless Noise Cancelling Buds", cat: "Gadgets", price: 890, old: 1450, off: "-38%", rate: "4.6 (94)", img: "https://unsplash.com" },
+  { id: 5, name: "RFL SS Single Wall Water Bottle", cat: "Gadgets", price: 270, old: 350, off: "-23%", rate: "4.8 (310)", img: "https://unsplash.com" },
+  { id: 6, name: "RGB Mechanical Gaming Keyboard", cat: "Gadgets", price: 1850, old: 2500, off: "-26%", rate: "4.9 (65)", img: "https://unsplash.com" }
 ];
 
 let cart = [];
 
-function renderProducts(list) {
-  const grid = document.getElementById('productGrid');
+function render(list) {
+  const grid = document.getElementById('prodGrid');
   grid.innerHTML = '';
-  list.forEach(function(p) {
-    const card = document.createElement('div');
-    card.className = 'glass card-3d rounded-xl p-3 flex flex-col justify-between relative';
-    card.innerHTML =
-      '<span class="absolute top-2 right-2 bg-[#f85606] text-[10px] px-1.5 py-0.5 rounded">' + p.off + '</span>' +
-      '<div class="h-24 rounded-lg mb-2 flex items-center justify-center" style="background:' + p.color + '22">' +
-        '<div class="w-12 h-12 rounded-full animate-pulse" style="background:' + p.color + '"></div>' +
-      '</div>' +
-      '<h3 class="text-xs font-semibold mb-1">' + p.name + '</h3>' +
-      '<div class="mb-2"><span class="text-sm font-bold text-[#f85606]">৳' + p.price + '</span> <span class="text-[10px] text-gray-400 line-through">৳' + p.old + '</span></div>' +
-      '<button onclick="addToCart(' + p.id + ')" class="w-full py-1.5 rounded bg-[#f85606] text-xs font-bold">কার্টে যোগ করুন</button>';
-    grid.appendChild(card);
+  list.forEach(p => {
+    grid.innerHTML += '<div class="card">' +
+      '<span class="off-tag">' + p.off + '</span>' +
+      '<img src="' + p.img + '" class="prod-img" />' +
+      '<div class="prod-title">' + p.name + '</div>' +
+      '<div class="price-row"><span class="price">৳' + p.price + '</span><span class="old-price">৳' + p.old + '</span></div>' +
+      '<div class="rating">⭐ ' + p.rate + ' | Free Delivery</div>' +
+      '<button class="btn-add" onclick="addCart(' + p.id + ')">কার্টে যোগ করুন</button>' +
+    '</div>';
   });
 }
 
-function filterProducts() {
+function filterCat(cat, el) {
+  document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  render(cat === 'All' ? products : products.filter(p => p.cat === cat));
+}
+
+function searchItems() {
   const q = document.getElementById('searchInput').value.toLowerCase();
-  renderProducts(products.filter(function(p) { return p.name.toLowerCase().includes(q); }));
+  render(products.filter(p => p.name.toLowerCase().includes(q)));
 }
 
-function addToCart(id) {
-  const item = products.find(function(p) { return p.id === id; });
-  cart.push(item);
+function addCart(id) {
+  cart.push(products.find(p => p.id === id));
   document.getElementById('cartCount').innerText = cart.length;
-  updateCartUI();
 }
 
-function updateCartUI() {
-  const box = document.getElementById('cartItems');
-  box.innerHTML = '';
+function openCart() {
+  const list = document.getElementById('cartList');
+  list.innerHTML = '';
   let total = 0;
-  cart.forEach(function(item) {
+  cart.forEach(item => {
     total += item.price;
-    const row = document.createElement('div');
-    row.className = 'flex justify-between bg-white/5 p-2 rounded';
-    row.innerHTML = '<span>' + item.name + '</span><span class="text-[#f85606]">৳' + item.price + '</span>';
-    box.appendChild(row);
+    list.innerHTML += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222;">' +
+      '<span>' + item.name + '</span><span style="color:#f85606;">৳' + item.price + '</span></div>';
   });
-  document.getElementById('totalPrice').innerText = total;
+  document.getElementById('totalBill').innerText = total;
+  document.getElementById('cartModal').classList.add('open');
 }
 
-function toggleCart() {
-  document.getElementById('cartModal').classList.toggle('hidden');
+function closeCart() { document.getElementById('cartModal').classList.remove('open'); }
+function selectPay(btn) {
+  document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
 }
-
-function checkout() {
-  if (cart.length === 0) return alert('কার্ট খালি!');
-  alert('অর্ডার সফলভাবে গ্রহণ করা হয়েছে!');
+function placeOrder() {
+  if (!cart.length) return alert('কার্ট খালি!');
+  alert('অভিনন্দন! আপনার অর্ডারটি সফলভাবে কনফার্ম হয়েছে।');
   cart = [];
   document.getElementById('cartCount').innerText = '0';
-  updateCartUI();
-  toggleCart();
+  closeCart();
 }
 
-renderProducts(products);
+// Flash Sale Timer
+let sec = 9930;
+setInterval(() => {
+  sec--;
+  let h = String(Math.floor(sec / 3600)).padStart(2, '0');
+  let m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+  let s = String(sec % 60).padStart(2, '0');
+  document.getElementById('countdown').innerText = h + ' : ' + m + ' : ' + s;
+}, 1000);
 
-// 3D Animation
-const container = document.getElementById('canvas-container');
+render(products);
+
+// Pro 3D Glowing Ring + Particles (Three.js)
+const box = document.getElementById('canvas-3d');
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+const cam = new THREE.PerspectiveCamera(50, box.clientWidth / box.clientHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-renderer.setSize(container.clientWidth, container.clientHeight);
-container.appendChild(renderer.domElement);
+renderer.setSize(box.clientWidth, box.clientHeight);
+box.appendChild(renderer.domElement);
 
-const geometry = new THREE.TorusKnotGeometry(1.1, 0.35, 100, 16);
-const material = new THREE.MeshStandardMaterial({ color: 0xf85606, metalness: 0.7, roughness: 0.2 });
-const torusKnot = new THREE.Mesh(geometry, material);
-scene.add(torusKnot);
+const ring = new THREE.Mesh(
+  new THREE.TorusGeometry(1.1, 0.28, 32, 100),
+  new THREE.MeshStandardMaterial({ color: 0xf85606, emissive: 0x551100, metalness: 0.85, roughness: 0.15 })
+);
+scene.add(ring);
 
-const light = new THREE.PointLight(0xffffff, 1.5);
-light.position.set(5, 5, 5);
-scene.add(light);
-scene.add(new THREE.AmbientLight(0xff8844, 0.8));
-camera.position.z = 4.2;
+const innerCore = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(0.55, 1),
+  new THREE.MeshStandardMaterial({ color: 0xa855f7, wireframe: true })
+);
+scene.add(innerCore);
 
-let isDragging = false, prevX = 0, prevY = 0;
-container.addEventListener('pointerdown', function(e) { isDragging = true; prevX = e.clientX; prevY = e.clientY; });
-window.addEventListener('pointerup', function() { isDragging = false; });
-window.addEventListener('pointermove', function(e) {
-  if (!isDragging) return;
-  torusKnot.rotation.y += (e.clientX - prevX) * 0.01;
-  torusKnot.rotation.x += (e.clientY - prevY) * 0.01;
-  prevX = e.clientX; prevY = e.clientY;
+const pLight = new THREE.PointLight(0xffffff, 2);
+pLight.position.set(4, 4, 4);
+scene.add(pLight, new THREE.AmbientLight(0xff7733, 1));
+cam.position.z = 3.8;
+
+let drag = false, px = 0, py = 0;
+box.addEventListener('pointerdown', e => { drag = true; px = e.clientX; py = e.clientY; });
+window.addEventListener('pointerup', () => drag = false);
+window.addEventListener('pointermove', e => {
+  if (!drag) return;
+  ring.rotation.y += (e.clientX - px) * 0.015;
+  ring.rotation.x += (e.clientY - py) * 0.015;
+  px = e.clientX; py = e.clientY;
 });
 
 function animate() {
   requestAnimationFrame(animate);
-  if (!isDragging) {
-    torusKnot.rotation.x += 0.008;
-    torusKnot.rotation.y += 0.012;
-  }
-  renderer.render(scene, camera);
+  if (!drag) { ring.rotation.x += 0.01; ring.rotation.y += 0.015; }
+  innerCore.rotation.y -= 0.02;
+  renderer.render(scene, cam);
 }
 animate();
