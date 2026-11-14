@@ -3,52 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daraz 3D Store</title>
-  <script src="https://tailwindcss.com"></script>
+  <title>Daraz 3D Bangladesh</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cloudflare.com"></script>
-  <style>
-    body { background: #0b0b10; color: white; font-family: sans-serif; }
-    .glass { background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); }
-    .card-3d { transition: 0.3s; }
-    .card-3d:hover { transform: translateY(-6px); border-color: #f85606; }
-  </style>
 </head>
 <body>
 
-  <nav class="sticky top-0 z-50 bg-[#f85606] px-4 py-3 flex items-center justify-between gap-2">
-    <div class="text-lg font-extrabold">DARAZ <span class="bg-black px-1.5 py-0.5 rounded text-xs">3D</span></div>
-    <input id="searchInput" onkeyup="filterProducts()" type="text" placeholder="পণ্য খুঁজুন..." class="w-1/2 bg-white text-black rounded-full px-3 py-1 text-xs outline-none" />
-    <button onclick="toggleCart()" class="bg-black/20 px-2.5 py-1 rounded-full text-sm">🛒 <span id="cartCount">0</span></button>
-  </nav>
-
-  <section class="max-w-5xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between">
-    <div class="space-y-2 text-center md:text-left">
-      <span class="bg-[#f85606] text-xs font-bold px-2.5 py-1 rounded-full">3D Interactive Shop</span>
-      <h1 class="text-3xl font-extrabold">কেনাকাটা করুন <span class="text-[#f85606]">3D</span> অভিজ্ঞতায়!</h1>
-      <p class="text-gray-400 text-xs">3D অবজেক্টটি আঙুল দিয়ে ঘুরিয়ে দেখুন।</p>
+  <header class="navbar">
+    <div class="nav-top">
+      <div class="logo">DARAZ <span>3D</span></div>
+      <div class="search-box">
+        <input id="searchInput" onkeyup="searchItems()" type="text" placeholder="Daraz-এ পণ্য খুঁজুন..." />
+      </div>
+      <button class="cart-btn" onclick="openCart()">🛒 <span id="cartCount">0</span></button>
     </div>
-    <div id="canvas-container" class="w-full md:w-1/2 h-[220px] cursor-grab"></div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <span class="badge">✨ Next-Gen 3D Shopping</span>
+      <h1>বাংলাদেশের সেরা 3D ই-কমার্স অভিজ্ঞতা</h1>
+      <p>ডানের 3D হোলোগ্রাম রিংটি আঙুল দিয়ে ঘুরিয়ে দেখুন এবং ফ্ল্যাশ সেলে অর্ডার করুন।</p>
+    </div>
+    <div id="canvas-3d"></div>
   </section>
 
-  <section class="max-w-5xl mx-auto px-4 pb-10">
-    <h2 class="text-lg font-bold text-[#f85606] mb-4">⚡ ফ্ল্যাশ সেল (Flash Sale)</h2>
-    <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+  <section class="section">
+    <div class="sec-title"><span>বিভাগসমূহ (Categories)</span></div>
+    <div class="cat-grid">
+      <div class="cat-item active" onclick="filterCat('All', this)">🔥 সব পণ্য</div>
+      <div class="cat-item" onclick="filterCat('Watch', this)">⌚ স্মার্ট ওয়াচ</div>
+      <div class="cat-item" onclick="filterCat('Fashion', this)">👕 ফ্যাশন</div>
+      <div class="cat-item" onclick="filterCat('Gadgets', this)">🎧 গ্যাজেট</div>
+    </div>
   </section>
 
-  <div id="cartModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
-    <div class="glass bg-[#16161f] w-full max-w-sm rounded-2xl p-4 space-y-3">
-      <div class="flex justify-between font-bold border-b border-gray-700 pb-2">
-        <span>শপিং কার্ট</span>
-        <button onclick="toggleCart()">&times;</button>
+  <section class="section">
+    <div class="sec-title">
+      <span>⚡ ফ্ল্যাশ সেল (Flash Sale)</span>
+      <span class="timer" id="countdown">02 : 45 : 30</span>
+    </div>
+    <div class="prod-grid" id="prodGrid"></div>
+  </section>
+
+  <!-- Cart & Checkout Modal -->
+  <div class="modal" id="cartModal">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+        <h3>আপনার শপিং কার্ট</h3>
+        <span onclick="closeCart()" style="cursor:pointer;font-size:20px;">&times;</span>
       </div>
-      <div id="cartItems" class="max-h-48 overflow-y-auto space-y-2 text-xs"></div>
-      <div class="flex justify-between font-bold pt-2 border-t border-gray-700">
-        <span>মোট:</span>
-        <span class="text-[#f85606]">৳ <span id="totalPrice">0</span></span>
+      <div id="cartList" style="max-height:180px;overflow-y:auto;font-size:13px;"></div>
+      <div style="margin-top:12px;font-weight:bold;display:flex;justify-content:space-between;">
+        <span>সর্বমোট বিল:</span>
+        <span style="color:#f85606;">৳ <span id="totalBill">0</span></span>
       </div>
-      <button onclick="checkout()" class="w-full bg-[#f85606] py-2 rounded-lg font-bold text-xs">অর্ডার কনফার্ম করুন</button>
+      <p style="font-size:11px;color:#aaa;margin-top:10px;">পেমেন্ট মেথড সিলেক্ট করুন:</p>
+      <div class="pay-methods">
+        <button class="pay-btn selected" onclick="selectPay(this)">bKash</button>
+        <button class="pay-btn" onclick="selectPay(this)">Nagad</button>
+        <button class="pay-btn" onclick="selectPay(this)">Cash On Delivery</button>
+      </div>
+      <button class="btn-add" onclick="placeOrder()">অর্ডার কনফার্ম করুন</button>
     </div>
   </div>
+
+  <nav class="bottom-nav">
+    <div onclick="window.scrollTo(0,0)">🏠<br>হোম</div>
+    <div onclick="alert('Daraz Mall: ১০০% অরিজিনাল ব্র্যান্ড পণ্য!')">🛍️<br>মল</div>
+    <div onclick="openCart()">🛒<br>কার্ট</div>
+    <div onclick="alert('অ্যাকাউন্ট: ইউজার প্রোফাইল ও অর্ডার ট্র্যাকিং')">👤<br>অ্যাকাউন্ট</div>
+  </nav>
 
   <script src="app.js"></script>
 </body>
